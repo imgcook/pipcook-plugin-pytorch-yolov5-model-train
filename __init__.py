@@ -43,7 +43,7 @@ def train(modelWrapper, data, hyp, opt, device):
   model = modelWrapper.model
   ckpt = modelWrapper.config['ckpt']
   logger.info(f'Hyperparameters {hyp}')
-  log_dir = './evolve'
+  log_dir = opt.modelPath
   wdir = log_dir + '/weights'
   os.makedirs(wdir, exist_ok=True)
   last = wdir + '/last.pt'
@@ -270,11 +270,12 @@ def main(data, model, args):
   opt.batch_size = opt.total_batch_size
   opt.world_size = 1
   opt.global_rank = -1
-  opt.img_size = [640, 640] if not hasattr(args, 'batch_size') else args.imgSize
   opt.hyp = os.path.join(os.path.dirname(__file__), 'config/hyp.scratch.yaml') 
   opt.device = ''
   opt.weights = 'yolov5s.pt'
   opt.single_cls = False
+  opt.modelPath = args.modelPath
+  opt.img_size = model.config['img_size']
 
   set_logging(opt.global_rank)
 
