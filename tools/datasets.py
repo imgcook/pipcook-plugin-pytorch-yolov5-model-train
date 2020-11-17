@@ -1001,7 +1001,6 @@ def preprocess(data):
     names, trainRootDir = preprocess_help(data, 'train')
     valnames, valRootDir = preprocess_help(data, 'val')
     testnames, testRootDir = preprocess_help(data, 'test')
-    print('------names', names, valnames, testnames)
     test = val = train = os.path.join(trainRootDir, 'images', 'train')
     if (len(valnames) > 0):
         val = os.path.join(valRootDir, 'images', 'val')

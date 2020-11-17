@@ -62,7 +62,6 @@ def train(modelWrapper, data, hyp, opt, device):
   cuda = device.type != 'cpu'
   init_seeds(2 + rank)
 
-  print('.......', opt.data)
   with open(opt.data) as f:
     data_dict = yaml.load(f, Loader=yaml.FullLoader)
   with torch_distributed_zero_first(rank):
@@ -159,14 +158,14 @@ def train(modelWrapper, data, hyp, opt, device):
   logger.info('Image sizes %g train, %g test\n'
               'Using %g dataloader workers\nLogging results to %s\n'
               'Starting training for %g epochs...' % (imgsz, imgsz_test, dataloader.num_workers, log_dir, epochs))
-
+  logger.info(('\n' + '%10s' * 8) % ('Epoch', 'gpu_mem', 'box', 'obj', 'cls', 'total', 'targets', 'img_size'))
   for epoch in range(start_epoch, epochs):
+    logger.info('Epoch: ' + str(epoch))
     model.train()
 
     mloss = torch.zeros(4, device=device)  # mean losses
     pbar = enumerate(dataloader)
-    logger.info(('\n' + '%10s' * 8) % ('Epoch', 'gpu_mem', 'box', 'obj', 'cls', 'total', 'targets', 'img_size'))
-    pbar = tqdm(pbar, total=nb)  # progress bar
+    
     optimizer.zero_grad()
     for i, (imgs, targets, paths, _) in pbar:
         ni = i + nb * epoch  # number integrated batches (since train start)
@@ -206,7 +205,6 @@ def train(modelWrapper, data, hyp, opt, device):
         mem = '%.3gG' % (torch.cuda.memory_reserved() / 1E9 if torch.cuda.is_available() else 0)  # (GB)
         s = ('%10s' * 2 + '%10.4g' * 6) % (
             '%g/%g' % (epoch, epochs - 1), mem, *mloss, targets.shape[0], imgs.shape[-1])
-        pbar.set_description(s)
 
         # Plot
         if ni < 3:
@@ -215,7 +213,7 @@ def train(modelWrapper, data, hyp, opt, device):
 
 
         # end batch ------------------------------------------------------------------------------------------------
-
+    logger.info(s)
     # Scheduler
     lr = [x['lr'] for x in optimizer.param_groups]  # for tensorboard
     scheduler.step()
@@ -241,7 +239,7 @@ def train(modelWrapper, data, hyp, opt, device):
     fi = fitness(np.array(results).reshape(1, -1))  # weighted combination of [P, R, mAP@.5, mAP@.5-.95]
     if fi > best_fitness:
         best_fitness = fi
-    print('----best map', fi)
+    logger.info('Current Best Map: ' + str(fi))
 
     # Save model
     with open(results_file, 'r') as f:  # create checkpoint
