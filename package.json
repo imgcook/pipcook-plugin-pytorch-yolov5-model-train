@@ -1,6 +1,6 @@
 {
   "name": "@pipcook/plugins-pytorch-yolov5-model-train",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "This is the pipcook model-train plugin for yolo v5 model",
   "main": "__init__.py",
   "scripts": {

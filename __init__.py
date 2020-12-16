@@ -120,10 +120,6 @@ def train(modelWrapper, data, hyp, opt, device):
   gs = int(max(model.stride))
   imgsz, imgsz_test = [check_img_size(x, gs) for x in opt.img_size]
 
-  # DP mode
-  if cuda and torch.cuda.device_count() > 1:
-      model = torch.nn.DataParallel(model)
-
   # Exponential moving average
   ema = ModelEMA(model)
 
