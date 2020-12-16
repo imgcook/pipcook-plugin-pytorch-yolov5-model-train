@@ -12,6 +12,8 @@ import torch.nn as nn
 import cv2
 import time
 import torchvision
+from scipy.cluster.vq import kmeans
+from tqdm import tqdm
 
 @contextmanager
 def torch_distributed_zero_first(local_rank: int):
